@@ -1,10 +1,16 @@
-const carlo = require('carlo');
 const path = require('path');
-var app = require('http').createServer()
-var io = require('socket.io')(app);
+const carlo = require('carlo');
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+var io = require('socket.io')(server);
+var cors = require('cors');
 
-app.listen(3000);
-
+server.listen(3000);
+app.use(cors())
+app.get('/', function (req, res, next) {
+	res.sendFile(__dirname + '/index.html');
+});
 (async () => {
 	let app;
 	try {
