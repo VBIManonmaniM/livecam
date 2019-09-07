@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Live WebCam</title>
+</head>
+
+<body>
+    <img id='image' height="500px" width="500px"/>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js">
+    </script>
+    <script>
+        const image = document.getElementById('image');
+        const socket = io.connect('http://localhost:3000');
+        socket.on('video', (base64) => {
+            image.src = base64;
+        });
+    </script>
+</body>
+
+</html>
