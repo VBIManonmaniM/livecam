@@ -36,14 +36,17 @@ async function initCapturing() {
         const detections = await faceapi.detectAllFaces(video, tinyFaceDetectorOptions).withFaceLandmarks().withFaceDescriptors();
         const resizeddetections = faceapi.resizeResults(detections, dispalySize);
         overLayCanvas.getContext('2d').clearRect(0, 0, overLayCanvas.width, overLayCanvas.height);
-        let results = resizeddetections.map(detection => {
-            return faceMatcher.findBestMatch(detection.descriptor);
-        });
+        let results = resizeddetections;
+        if (faceMatcher) {
+            results = resizeddetections.map(detection => {
+                return faceMatcher.findBestMatch(detection.descriptor);
+            });
+        }
         results.forEach((result, i) => {
             debugger
             const box = resizeddetections[i].detection.box;
             const drawBox = new faceapi.draw.DrawBox(box, {
-                label: result.toString()
+                label: faceMatcher? result.toString() : 'Unknown'
             });
             drawBox.draw(overLayCanvas);
         });
