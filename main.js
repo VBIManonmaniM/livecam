@@ -24,7 +24,6 @@ app.get('/', function (req, res, next) {
 	try {
 		app = await carlo.launch(
 			{
-				devTools: true,
 				width: 500,
 				height: 500,
 			});
