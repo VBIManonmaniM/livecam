@@ -24,8 +24,8 @@ app.get('/', function (req, res, next) {
 	try {
 		app = await carlo.launch(
 			{
-				width: 500,
-				height: 500,
+				width: 900,
+				height: 700,
 			});
 	} catch (e) {
 		// New window is opened in the running instance.
