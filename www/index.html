@@ -30,12 +30,10 @@
 
 	async function initCapturing() {
 		try {
-			let imagesDescriptors = await loadImagesDescriptors();
-			let faceMatcher = await faceapi.FaceMatcher(imagesDescriptors, 0.2);
-		} catch(e) {
-			debugger
+			var imagesDescriptors = await loadImagesDescriptors();
+			var faceMatcher = new faceapi.FaceMatcher(imagesDescriptors, 0.6);
+		} catch (e) {
 		}
-
 		const video = document.getElementById('video');
 		overLayCanvas = faceapi.createCanvasFromMedia(video);
 		document.body.append(overLayCanvas);
@@ -45,17 +43,20 @@
 			scoreThreshold: 0.3
 		});
 		setInterval(async () => {
-			const detections = await faceapi.detectAllFaces(video, tinyFaceDetectorOptions).withFaceLandmarks();
+			const detections = await faceapi.detectAllFaces(video, tinyFaceDetectorOptions).withFaceLandmarks().withFaceDescriptors();
 			const resizeddetections = faceapi.resizeResults(detections, dispalySize);
 			overLayCanvas.getContext('2d').clearRect(0, 0, overLayCanvas.width, overLayCanvas.height);
-			let results = resizeddetections.map(detection => faceMatcher.findBestMatch(detection.descriptor));
+			let results = resizeddetections.map(detection => {
+				return faceMatcher.findBestMatch(detection.descriptor);
+			});
 			results.forEach((result, i) => {
+				debugger
 				const box = resizeddetections[i].detection.box;
 				const drawBox = new faceapi.draw.DrawBox(box, {
 					label: result.toString()
 				});
 				drawBox.draw(overLayCanvas);
-		    });
+			});
 		}, 0);
 	}
 
@@ -72,17 +73,21 @@
 	}
 
 	async function loadImagesDescriptors() {
-		debugger
+		var tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions({
+			scoreThreshold: 0.3
+		});
 		const labels = ['mano'];
 		return Promise.all(labels.map(async label => {
+			let detections = [];
 			try {
-				debugger
-				let image = await faceapi.fetchImage(`http://localhost:3000/images/${label}/1.jpg`);
-				const detection = await faceapi.detectSingleFace(image)
-				.withFaceLandmarks().withFaceDescriptor();
-				return new faceapi.LabeledFaceDescriptors(label, [detection.descriptor]);
+				for (let index = 1; index <= 1; index++) {
+					let image = await faceapi.fetchImage(`http://localhost:3000/images/${label}/${index}.jpg`);
+					const detection = await faceapi.detectSingleFace(image, tinyFaceDetectorOptions)
+						.withFaceLandmarks().withFaceDescriptor();
+					detections.push(detection.descriptor);
+				}
+				return new faceapi.LabeledFaceDescriptors(label, detections);
 			} catch (e) {
-				debugger
 			}
 		}));
 	}
