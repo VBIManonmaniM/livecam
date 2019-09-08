@@ -13,79 +13,50 @@
   See the License for the specific language governing permissions and
   limitations under the License.
  -->
-
+<script src='http://localhost:3000/dist/face-api.js'></script>
 <link rel="shortcut icon" href="favicon.ico" sizes="256x256" />
 <title>PhotoBooth App</title>
 <style>
-	body {
-		background-color: #e6e8ec;
-		display: flex;
-		flex-direction: column;
-		margin: 0;
-	}
-
-	canvas {
-		display: none;
-	}
-
-	.buttons {
-		display: flex;
-		justify-content: center;
-		color: #aaa;
-		flex-basis: 48px;
-	}
-
-	#button {
-		cursor: hand;
-		background-color: black;
-		-webkit-mask-image: url(camera.svg);
-		transform: scale(2, 2);
-		width: 24px;
-		height: 24px;
-		margin-top: 12px;
-	}
-
-	#button:hover {
-		background: red;
-	}
-
-	#button:active {
-		opacity: 0.4;
-	}
-
-	#video {
-		flex: auto;
-		transform: scaleX(-1);
-	}
-
-	.flashit {
-		animation: flash linear 100ms;
-	}
-
-	@keyframes flash {
-		0% {
-			opacity: 1;
-		}
-
-		50% {
-			opacity: .1;
-		}
-
-		100% {
-			opacity: 1;
-		}
+	canvas{
+		position :absolute;
+		top:0;
+		left:0;
 	}
 </style>
 
 <script>
+	let overLayCanvas;
 	async function run() {
+		await Promise.all([
+			faceapi.nets.tinyFaceDetector.loadFromUri('http://localhost:3000/models'),
+			faceapi.nets.faceLandmark68Net.loadFromUri('http://localhost:3000/models'),
+			faceapi.nets.faceRecognitionNet.loadFromUri('http://localhost:3000/models'),
+			faceapi.nets.faceExpressionNet.loadFromUri('http://localhost:3000/models')
+		]);
 		const video = document.getElementById('video');
 		const button = document.getElementById('button');
 		video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
 		setInterval(() => {
 			captureScreenshot();
-		}, 10);
+		}, 100);
 	}
+	
+	async function initCapturing() {
+		const video = document.getElementById('video');
+		overLayCanvas = faceapi.createCanvasFromMedia(video);
+		document.body.append(overLayCanvas);
+		const dispalySize = { width: video.width, height: video.height }
+		faceapi.matchDimensions(overLayCanvas, dispalySize);
+		var tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions();
+		tinyFaceDetectorOptions.scoreThreshold = 0.2;
+		setInterval(async () => {
+			const detections = await faceapi.detectAllFaces(video, tinyFaceDetectorOptions).withFaceLandmarks();
+			const resizeddetections = faceapi.resizeResults(detections, dispalySize);
+			overLayCanvas.getContext('2d').clearRect(0, 0, overLayCanvas.width, overLayCanvas.height)
+			faceapi.draw.drawDetections(overLayCanvas, resizeddetections);
+		}, 100)
+	}
+
 
 	function captureScreenshot() {
 		const video = document.getElementById('video');
@@ -94,14 +65,15 @@
 		canvas.height = video.videoHeight;
 		const context = canvas.getContext('2d');
 		context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+		overLayCanvas && context.drawImage(overLayCanvas, 0, 0, video.videoWidth, video.videoHeight);
 		saveVideo(canvas.toDataURL('image/jpeg'));
 	}
 
 </script>
 
 <body onload="run()" tabIndex="0">
-	<video autoplay id="video"></video>
-	<canvas id="canvas"></canvas>
+	<video width="400" height="500" id="video" onplay="initCapturing()" autoplay muted></video>
+	<canvas id='canvas'></canvas>
 </body>
 
 </html>

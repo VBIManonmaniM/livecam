@@ -7,7 +7,15 @@ var io = require('socket.io')(server);
 var cors = require('cors');
 
 server.listen(3000);
-app.use(cors())
+app.use(cors());
+
+app.use(express.static(__dirname))
+// const fileAPIDir = path.join(__dirname, 'dist');
+// app.use(express.static(fileAPIDir));
+
+// app.use(express.static(path.join(__dirname, 'models')));
+
+
 app.get('/', function (req, res, next) {
 	res.sendFile(__dirname + '/index.html');
 });
@@ -16,8 +24,9 @@ app.get('/', function (req, res, next) {
 	try {
 		app = await carlo.launch(
 			{
-				width: 0,
-				height: 0
+				devTools: true,
+				width: 500,
+				height: 500,
 			});
 	} catch (e) {
 		// New window is opened in the running instance.
