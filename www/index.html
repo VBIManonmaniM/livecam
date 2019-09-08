@@ -47,14 +47,15 @@
 		document.body.append(overLayCanvas);
 		const dispalySize = { width: video.width, height: video.height }
 		faceapi.matchDimensions(overLayCanvas, dispalySize);
-		var tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions();
-		tinyFaceDetectorOptions.scoreThreshold = 0.2;
+		var tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions({
+			scoreThreshold: 0.3
+		});
 		setInterval(async () => {
 			const detections = await faceapi.detectAllFaces(video, tinyFaceDetectorOptions).withFaceLandmarks();
 			const resizeddetections = faceapi.resizeResults(detections, dispalySize);
 			overLayCanvas.getContext('2d').clearRect(0, 0, overLayCanvas.width, overLayCanvas.height)
 			faceapi.draw.drawDetections(overLayCanvas, resizeddetections);
-		}, 100)
+		}, 0);
 	}
 
 
