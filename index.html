@@ -15,7 +15,7 @@
     </script>
     <script>
         const image = document.getElementById('image');
-        const socket = io.connect('http://localhost:3000');
+        const socket = io.connect('http://192.168.1.2:3000');
         socket.on('video', (base64) => {
             image.src = base64;
         });
