@@ -17,7 +17,8 @@
 			faceapi.nets.tinyFaceDetector.loadFromUri('http://localhost:3000/models'),
 			faceapi.nets.faceLandmark68Net.loadFromUri('http://localhost:3000/models'),
 			faceapi.nets.faceRecognitionNet.loadFromUri('http://localhost:3000/models'),
-			faceapi.nets.faceExpressionNet.loadFromUri('http://localhost:3000/models')
+			faceapi.nets.faceExpressionNet.loadFromUri('http://localhost:3000/models'),
+			faceapi.nets.ssdMobilenetv1.loadFromUri('http://localhost:3000/models')
 		]);
 		const video = document.getElementById('video');
 		const button = document.getElementById('button');
@@ -28,6 +29,13 @@
 	}
 
 	async function initCapturing() {
+		try {
+			let imagesDescriptors = await loadImagesDescriptors();
+			let faceMatcher = await faceapi.FaceMatcher(imagesDescriptors, 0.2);
+		} catch(e) {
+			debugger
+		}
+
 		const video = document.getElementById('video');
 		overLayCanvas = faceapi.createCanvasFromMedia(video);
 		document.body.append(overLayCanvas);
@@ -39,8 +47,15 @@
 		setInterval(async () => {
 			const detections = await faceapi.detectAllFaces(video, tinyFaceDetectorOptions).withFaceLandmarks();
 			const resizeddetections = faceapi.resizeResults(detections, dispalySize);
-			overLayCanvas.getContext('2d').clearRect(0, 0, overLayCanvas.width, overLayCanvas.height)
-			faceapi.draw.drawDetections(overLayCanvas, resizeddetections);
+			overLayCanvas.getContext('2d').clearRect(0, 0, overLayCanvas.width, overLayCanvas.height);
+			let results = resizeddetections.map(detection => faceMatcher.findBestMatch(detection.descriptor));
+			results.forEach((result, i) => {
+				const box = resizeddetections[i].detection.box;
+				const drawBox = new faceapi.draw.DrawBox(box, {
+					label: result.toString()
+				});
+				drawBox.draw(overLayCanvas);
+		    });
 		}, 0);
 	}
 
@@ -54,6 +69,22 @@
 		context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 		overLayCanvas && context.drawImage(overLayCanvas, 0, 0, video.videoWidth, video.videoHeight);
 		saveVideo(canvas.toDataURL('image/jpeg'));
+	}
+
+	async function loadImagesDescriptors() {
+		debugger
+		const labels = ['mano'];
+		return Promise.all(labels.map(async label => {
+			try {
+				debugger
+				let image = await faceapi.fetchImage(`http://localhost:3000/images/${label}/1.jpg`);
+				const detection = await faceapi.detectSingleFace(image)
+				.withFaceLandmarks().withFaceDescriptor();
+				return new faceapi.LabeledFaceDescriptors(label, [detection.descriptor]);
+			} catch (e) {
+				debugger
+			}
+		}));
 	}
 
 </script>
