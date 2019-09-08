@@ -11,7 +11,9 @@
 </style>
 
 <script>
-	let overLayCanvas;
+	let overLayCanvas,
+		imagesDescriptors,
+		faceMatcher;
 	async function run() {
 		await Promise.all([
 			faceapi.nets.tinyFaceDetector.loadFromUri('http://localhost:3000/models'),
@@ -20,6 +22,12 @@
 			faceapi.nets.faceExpressionNet.loadFromUri('http://localhost:3000/models'),
 			faceapi.nets.ssdMobilenetv1.loadFromUri('http://localhost:3000/models')
 		]);
+		try {
+			imagesDescriptors = await loadImagesDescriptors();
+			faceMatcher = new faceapi.FaceMatcher(imagesDescriptors, 0.6);
+		} catch (e) {
+		}
+
 		const video = document.getElementById('video');
 		const button = document.getElementById('button');
 		video.srcObject = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -29,11 +37,6 @@
 	}
 
 	async function initCapturing() {
-		try {
-			var imagesDescriptors = await loadImagesDescriptors();
-			var faceMatcher = new faceapi.FaceMatcher(imagesDescriptors, 0.6);
-		} catch (e) {
-		}
 		const video = document.getElementById('video');
 		overLayCanvas = faceapi.createCanvasFromMedia(video);
 		document.body.append(overLayCanvas);
