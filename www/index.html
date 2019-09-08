@@ -47,7 +47,7 @@
 
 	function captureScreenshot() {
 		const video = document.getElementById('video');
-		const canvas = document.getElementById('canvas');
+		const canvas = document.getElementById('image-canvas');
 		canvas.width = video.videoWidth;
 		canvas.height = video.videoHeight;
 		const context = canvas.getContext('2d');
@@ -60,7 +60,7 @@
 
 <body onload="run()" tabIndex="0">
 	<video width="400" height="500" id="video" onplay="initCapturing()" autoplay muted></video>
-	<canvas id='canvas'></canvas>
+	<canvas style="display: none" id='image-canvas'></canvas>
 </body>
 
 </html>
