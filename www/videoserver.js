@@ -69,7 +69,7 @@ async function loadImagesDescriptors() {
     var tinyFaceDetectorOptions = new faceapi.TinyFaceDetectorOptions({
         scoreThreshold: 0.3
     });
-    const labels = ['mano'];
+    const labels = ['mano', 'nithya', 'akila'];
     return Promise.all(labels.map(async label => {
         let detections = [];
         try {
