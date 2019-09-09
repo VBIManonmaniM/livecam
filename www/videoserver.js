@@ -11,6 +11,7 @@ async function run() {
     ]);
     try {
         imagesDescriptors = await loadImagesDescriptors();
+        imagesDescriptors = imagesDescriptors.filter(image => image);
         faceMatcher = new faceapi.FaceMatcher(imagesDescriptors, 0.5);
     } catch (e) {
     }
@@ -73,11 +74,15 @@ async function loadImagesDescriptors() {
     return Promise.all(labels.map(async label => {
         let detections = [];
         try {
-            for (let index = 1; index <= 2; index++) {
-                let image = await faceapi.fetchImage(`http://localhost:3000/images/${label}/${index}.jpg`);
-                const detection = await faceapi.detectSingleFace(image, tinyFaceDetectorOptions)
-                    .withFaceLandmarks().withFaceDescriptor();
-                detections.push(detection.descriptor);
+            for (let index = 1; index <= 3; index++) {
+                try {
+                    let image = await faceapi.fetchImage(`http://localhost:3000/images/${label}/${index}.jpg`);
+                    const detection = await faceapi.detectSingleFace(image, tinyFaceDetectorOptions)
+                        .withFaceLandmarks().withFaceDescriptor();
+                    detections.push(detection.descriptor);
+                } catch(e) {
+                    debugger
+                }
             }
             return new faceapi.LabeledFaceDescriptors(label, detections);
         } catch (e) {
