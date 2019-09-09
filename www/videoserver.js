@@ -11,7 +11,7 @@ async function run() {
     ]);
     try {
         imagesDescriptors = await loadImagesDescriptors();
-        faceMatcher = new faceapi.FaceMatcher(imagesDescriptors, 0.6);
+        faceMatcher = new faceapi.FaceMatcher(imagesDescriptors, 0.5);
     } catch (e) {
     }
     document.getElementsByClassName('divloader')[0].remove();
