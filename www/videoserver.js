@@ -76,8 +76,8 @@ async function loadImagesDescriptors() {
         try {
             for (let index = 1; index <= 3; index++) {
                 try {
-                    let image = await faceapi.fetchImage(`http://localhost:3000/images/${label}/${index}.jpg`);
-                    const detection = await faceapi.detectSingleFace(image, tinyFaceDetectorOptions)
+                    var image = await faceapi.fetchImage(`http://localhost:3000/images/${label}/${index}.jpg`);
+                    var detection = await faceapi.detectSingleFace(image, tinyFaceDetectorOptions)
                         .withFaceLandmarks().withFaceDescriptor();
                     detections.push(detection.descriptor);
                 } catch(e) {
