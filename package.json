@@ -22,7 +22,7 @@
     "cors": "^2.8.5",
     "puppeteer": "^1.19.0",
     "socket.io": "^2.2.0",
-    "systeminformation": "^3.45.9"
+    "systeminformation": "^4.27.11"
   },
   "devDependencies": {
     "pkg": "^4.3.4"
